@@ -28,10 +28,18 @@ def rust_file(name):
 def rust_digest(files):
     return digest("".join(name + "\0" + digest(files[name]) + "\n"
                           for name in sorted(files) if rust_file(name)).encode())
+# 배포물 생성 입력이 아닌 고정 CI 실행 설정·검증기 자체만 분리한다.
+# Cargo/Rust/vendor, adapter와 loader, 실제 빌드 workflow·pack 스크립트는 계속 대조한다.
+CI_METADATA = frozenset({
+    ".github/workflows/fixed-pack.yml",
+    "scripts/check-native-css-source.py",
+    "scripts/test-native-css-source.py",
+})
+
 def same_source(current, archived):
-    # fixture-only metadata changes after packaging do not change corresponding source.
+    # 호스트 CI 설정 변경만으로 같은 compiler binary를 재포장하지 않는다.
     relevant = lambda files: {n: v for n, v in files.items()
-                              if not n.startswith("fixtures/nativewind5/")}
+                              if not n.startswith("fixtures/nativewind5/") and n not in CI_METADATA}
     a, b = relevant(current), relevant(archived)
     assert a.keys() == b.keys(), "source file set drift: " + str(a.keys() ^ b.keys())
     for name in a:
@@ -76,7 +84,11 @@ def main():
     assert b"Permission is hereby granted" in notice and b"THE SOFTWARE IS PROVIDED" in notice
     assert package["package/wasm/NAPI-WASM-NOTICE"] == notice
     assert package["package/wasm/napi-wasm-package.json"] == current["vendor/napi-wasm-package.json"]
+    metadata_delta = {name: {"archive": digest(archived[name]) if name in archived else None,
+                             "checkout": digest(current[name]) if name in current else None}
+                      for name in sorted(CI_METADATA) if current.get(name) != archived.get(name)}
     print(json.dumps({"gate": "PASS", "sourceFiles": len(archived), "rustInputSHA256": rust,
-                      "pack": manifest["file"], "revision": provenance["revision"]}, indent=2))
+                      "pack": manifest["file"], "revision": provenance["revision"],
+                      "ciMetadataOnlyChanges": metadata_delta}, indent=2))
 if __name__ == "__main__":
     main()

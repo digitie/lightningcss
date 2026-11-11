@@ -9,6 +9,17 @@ class SourceGateTests(unittest.TestCase):
     def test_fixture_only_allowed(self):
         gate.same_source({"src/a.rs": b"a", "fixtures/nativewind5/manifest": b"new"},
                          {"src/a.rs": b"a", "fixtures/nativewind5/manifest": b"old"})
+    def test_only_fixed_ci_metadata_allowed(self):
+        names = (".github/workflows/fixed-pack.yml", "scripts/check-native-css-source.py",
+                 "scripts/test-native-css-source.py")
+        old = {"src/a.rs": b"a", **{name: b"old" for name in names}}
+        gate.same_source({**old, **{name: b"new" for name in names}}, old)
+    def test_ci_metadata_neighbors_and_build_workflow_are_source(self):
+        for name in (".github/workflows/build.yml", ".github/workflows/fixed-pack.yml.extra",
+                     "scripts/check-native-css-source.py.extra", "scripts/pack-native-candidate.mjs",
+                     "node/index.js"):
+            with self.subTest(name=name), self.assertRaises(AssertionError):
+                gate.same_source({name: b"new"}, {name: b"old"})
     def test_changes_fail(self):
         for name in ("src/a.rs", "Cargo.lock", "vendor/serde-content/src/de/mod.rs",
                      "wasm/import.meta.url-polyfill.js", "scripts/build-candidate-wasm.mjs"):
