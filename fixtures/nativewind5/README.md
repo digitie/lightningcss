@@ -35,4 +35,10 @@ numeric coercion, including the second visitor pass after infinity is printed.
 
 vendor의 수정 후보와 manifest는 동일한 파일 해시를 고정한다. npm ci 후 npm test는 전달 pack을 실제로 추출하고 Node 전체90개·최소 재현·Expo resolver·앱과 독립적인 합성 CSS의 compiler IR을 검증한다. Linux에서는 native와 강제 WASM을 각각 실행하며 macOS와 Windows에서는 해당 호스트의 자동 WASM 선택을 실제 실행한다. GitHub CI의 호스트별 실행 결과를 확인하기 전에는 그 호스트가 통과했다고 표시하지 않는다.
 
-기존 CodSpeed 성능 서비스는 원 저장소에서만 실행한다. 이 fork의 변경은 외부 성능 서비스 연결을 요구하지 않으며 기능 검증은 별도 고정 배포물 CI가 수행한다. 고정 배포물의 Rust 소스 revision은 684c528b2d16c581c99cf829f9a4988985488d5f이며, 이후 CI/fixture 추가 커밋은 해당 실행 소스의 변경을 포함하지 않는다.
+기존 CodSpeed 성능 서비스는 원 저장소에서만 실행한다. 이 fork의 변경은 외부 성능 서비스 연결을 요구하지 않으며 기능 검증은 별도 고정 배포물 CI가 수행한다. fix.4는 현재 source archive와 별도로 native/raw WASM의 실제 빌드 revision 684c528b2d16c581c99cf829f9a4988985488d5f를 기록한다. Rust/Cargo/serde vendor 입력 전체 digest가 같을 때만 기존 binary를 재사용한다. JS adapter는 수정한 현재 helper로 다시 번들하며 입력·출력 receipt를 동봉한다. 소스가 달라지면 pack/manifest를 함께 교체해야 한다.
+
+release/1.33.0 PR의 source-gate는 현재 checkout(시험 fixture 변경만 제외), 동봉 git archive, Rust 빌드 입력, JS adapter receipt, binary hash를 자동 대조한다. 이어 정확한 checkout의 LightningCSS test_serde, vendored serde integration suite 및 doctest를 경고 완화 없이 실행한다. vendor의 기존 unit mock dead-code 경고를 숨기지 않으며, 이 gate가 upstream unit 전체 실행이라고 주장하지 않는다. 별도 serde fork의 전체 unit gate는 그 fork의 정확 SHA에서 관리한다.
+
+MIT 고지는 고정 napi-wasm package.json의 author/license 선언과 허가·조건·면책 전문을 포함한다. 상류가 제공하지 않은 copyright 연도/권리자는 추정하지 않는다. source vendor와 npm wasm 디렉터리에 같은 고지 및 package.json을 제공한다.
+
+WASM 회귀는 package를 symlink 대신 공백, #, %, 복합 경로에 실제 복사해 강제 WASM require와 visitor를 실행한다. .gitattributes는 fixture vendor의 역사 tgz만 git archive에서 제외하며 Rust/Cargo/vendor/wasm/build scripts는 보존한다.

@@ -9,6 +9,29 @@ on:
 permissions:
   contents: read
 jobs:
+  source-gate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      CARGO_TERM_COLOR: always
+      CARGO_INCREMENTAL: '0'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - name: 현재 source와 내장 archive 및 binary 빌드 계보 감사
+        run: |
+          python3 scripts/test-native-css-source.py
+          python3 scripts/check-native-css-source.py
+      - name: 빌드와 동일한 Rust 도구 버전
+        run: rustup toolchain install 1.92.0 --profile minimal
+      - name: 정확한 checkout의 LightningCSS serde 회귀
+        run: cargo +1.92.0 test --locked --test test_serde --features serde
+      - name: 정확한 vendored serde 숫자와 option 회귀 (경고 완화 없음)
+        run: cargo +1.92.0 test --locked -p serde-content --test attributes --test errors --test newtype --test numbers --test roundtrip
+      - name: 정확한 vendored serde doctest
+        run: cargo +1.92.0 test --locked -p serde-content --doc
   packed-hosts:
     strategy:
       fail-fast: false

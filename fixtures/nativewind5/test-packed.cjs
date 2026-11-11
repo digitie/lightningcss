@@ -8,7 +8,7 @@ const crypto = require('node:crypto');
 const { spawnSync } = require('node:child_process');
 const fixture = __dirname;
 const root = path.resolve(fixture, '../..');
-const manifest = require('./fixed-pack-manifest.json');
+const manifest = require('./fixed-pack-manifest-fix4.json');
 const packed = path.join(fixture, 'vendor', manifest.file);
 assert.equal(crypto.createHash('sha256').update(fs.readFileSync(packed)).digest('hex'), manifest.sha256);
 function run(command, args, env = process.env, cwd = fixture) {
@@ -30,6 +30,7 @@ try {
     ['lightningcss.linux-x64-gnu.node', provenance.binarySHA256],
     ['wasm/lightningcss_node.wasm', provenance.wasmSHA256],
   ]) assert.equal(crypto.createHash('sha256').update(fs.readFileSync(path.join(packageRoot, file))).digest('hex'), expected);
+  require('./test-special-paths.cjs')(packageRoot, stage);
   fs.cpSync(path.join(root, 'node/test'), path.join(packageRoot, 'node/test'), { recursive: true });
   const modes = process.platform === 'linux' ? ['auto', 'wasm'] : ['auto'];
   for (const mode of modes) {
