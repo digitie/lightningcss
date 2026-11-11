@@ -9,7 +9,7 @@ const {lightningcssLoader} = appRequire(path.join(enginePath, 'dist/commonjs/com
 const {compile} = appRequire('react-native-css/compiler');
 const selected = appRequire.resolve('lightningcss', {paths: [path.dirname(appRequire.resolve('@expo/metro-config/package.json'))]});
 const selectedMeta = JSON.parse(fs.readFileSync(path.resolve(path.dirname(selected), '../package.json')));
-assert.equal(selectedMeta.version, process.env.NATIVE_FIX_EXPECTED_VERSION || '1.33.0+nativecss.fix.3');
+assert.equal(selectedMeta.version, process.env.NATIVE_FIX_EXPECTED_VERSION || '1.33.0+nativecss.fix.4');
 assert.equal(lightningcssLoader().lightningcss, appRequire(selected).transform);
 console.log('ACTUAL EXPO ENGINE RESOLUTION', selected, selectedMeta.version, selectedMeta.nativeFix, appRequire(selected).nativeFixBackend);
 const cases = {
