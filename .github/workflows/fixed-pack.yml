@@ -1,0 +1,54 @@
+# SPDX-License-Identifier: MPL-2.0
+# SPDX-FileCopyrightText: 2026 Youn-sok Choi (digitie)
+name: 수정 배포물 호스트 검증
+on:
+  pull_request:
+  push:
+    branches: [release/1.33.0]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-gate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      CARGO_TERM_COLOR: always
+      CARGO_INCREMENTAL: '0'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - name: 현재 source와 내장 archive 및 binary 빌드 계보 감사
+        run: |
+          python3 scripts/test-native-css-source.py
+          python3 scripts/check-native-css-source.py
+      - name: 빌드와 동일한 Rust 도구 버전
+        run: rustup toolchain install 1.92.0 --profile minimal
+      - name: 정확한 checkout의 LightningCSS serde 회귀
+        run: cargo +1.92.0 test --locked --test test_serde --features serde
+      - name: 정확한 vendored serde 숫자와 option 회귀 (경고 완화 없음)
+        run: cargo +1.92.0 test --locked -p serde-content --test attributes --test errors --test newtype --test numbers --test roundtrip
+      - name: 정확한 vendored serde doctest
+        run: cargo +1.92.0 test --locked -p serde-content --doc
+  packed-hosts:
+    strategy:
+      fail-fast: false
+      matrix:
+        # arm64 공급 부족으로 미실행 취소된 macOS15는 같은 OS의 Intel 호스트에서 동일 pack을 검사한다.
+        os: [ubuntu-24.04, macos-15-intel, windows-2025]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: '22.23.1'
+      - run: npm install --global npm@11.19.1
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+        working-directory: fixtures/nativewind5
+      - run: npm test
+        working-directory: fixtures/nativewind5

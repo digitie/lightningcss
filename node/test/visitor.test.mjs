@@ -38,6 +38,76 @@ if (process.env.TEST_WASM === 'node') {
   ({ bundle, bundleAsync, transform, transformStyleAttribute } = await import('../index.mjs'));
 }
 
+
+for (const [name, visitor] of [
+  ['Rule', {Rule: value => value}],
+  ['Declaration', {Declaration: value => value}],
+  ['Variable', {Variable: value => ({type: 'var', value})}],
+  ['EnvironmentVariable', {EnvironmentVariable: value => ({type: 'env', value})}],
+  ['StyleSheetExit', {StyleSheetExit: value => value}],
+]) {
+  test(`null optional AST fields survive ${name} round trips`, () => {
+    for (const css of [
+      '.x { color: var(--color); }',
+      '.x { color: var(--color, var(--fallback)); }',
+      '.x { padding: env(safe-area-inset-top); }',
+      '.x { padding: env(--custom); }',
+      '@property --x { syntax: "*"; inherits: false; initial-value: 0; } .x { translate: var(--x); }',
+    ]) {
+      const options = {filename: 'test.css', code: Buffer.from(css)};
+      const expected = transform(options);
+      const actual = transform({...options, visitor});
+      assert.equal(actual.code.toString(), expected.code.toString());
+      assert.equal(actual.warnings, expected.warnings);
+    }
+  });
+}
+
+test('visitor null options preserve CSS module references and numeric coercion', () => {
+  const options = {
+    filename: 'test.css',
+    minify: true,
+    code: Buffer.from('.x { color: var(--color from "./theme.css", red); width: 1px; }'),
+    cssModules: {dashedIdents: true},
+  };
+  const expected = transform(options);
+  const actual = transform({...options, visitor: {Rule: rule => rule}});
+  assert.equal(actual.code.toString(), expected.code.toString());
+  assert.equal(actual.references, expected.references);
+  assert.equal(actual.exports, expected.exports);
+});
+
+
+test('non-finite f32 values survive buffered AST visitors', () => {
+  const options = {filename: 'test.css', code: Buffer.from('.rounded { border-radius: calc(infinity * 1px); }')};
+  const expected = transform(options).code.toString();
+  for (const visitor of [
+    {Rule: rule => rule},
+    {Declaration: declaration => declaration},
+    {StyleSheetExit: sheet => sheet},
+  ]) {
+    assert.equal(transform({...options, visitor}).code.toString(), expected);
+  }
+});
+
+
+test('large integral f32 values survive buffered AST visitors', () => {
+  for (const css of ['.x { border-radius: 100000px; }', '.x { opacity: 100000; }']) {
+    const options = {filename: 'test.css', code: Buffer.from(css)};
+    assert.equal(
+      transform({...options, visitor: {Rule: rule => rule}}).code.toString(),
+      transform(options).code.toString(),
+    );
+  }
+});
+
+test('rounded-full survives consecutive visitor passes', () => {
+  const options = {filename: 'test.css', code: Buffer.from('.x { border-radius: calc(infinity * 1px); }'), visitor: {Rule: rule => rule}};
+  const first = transform(options);
+  const second = transform({...options, code: first.code});
+  assert.ok(second.code.toString().includes('border-radius'));
+});
+
 test('px to rem', () => {
   // Similar to https://github.com/cuth/postcss-pxtorem
   let res = transform({

@@ -1,0 +1,49 @@
+{
+  "file": "lightningcss-1.33.0+nativecss.fix.4.tgz",
+  "size": 15376394,
+  "integrity": "sha512-zDQ03VJE37OlyBrLsRcsEdIVu0T4BXJKDH5y9//To6GlGN2UrKQGERFVAFblkPQ5ZEbhuOp5wpXxGARZNdbQLA==",
+  "sha256": "12c8326428a56e38231f7b5b376df0c6882e3492da794f3499269628edcaccf0",
+  "provenance": {
+    "rustInputSHA256": "23cc04bc2587fe044f8e4fdf21690eb8fa7a4ebedbc388a06cb3602aac426c75",
+    "nativeBuild": {
+      "revision": "684c528b2d16c581c99cf829f9a4988985488d5f",
+      "rustc": "rustc 1.92.0 (ded5c06cf 2025-12-08)",
+      "binarySHA256": "8a38620c1bbf54acfb12f40b3180ce4e8510a5fb952e9173a3b7fe0b676ecbd6",
+      "wasmSHA256": "4c2a5251dac4f47ebdadce39579febee5e12e00a3c892e5719e2a46ffa535a27",
+      "rawWasmSHA256": "d392deef78bf3cd0026c9e05fab68d3b185a561e89240e5e875f5c6a82f8d443",
+      "buildImage": "node@sha256:0557ac14e0d45d02ed563067b82856ca5e7aa3437fa28d98d4350ea9c3d9494a",
+      "policy": "Reuse only when the complete Rust/Cargo/vendor input digest matches this compiled revision. Adapter is always rebuilt from current JavaScript sources."
+    },
+    "adapterBuild": {
+      "inputs": {
+        "wasm/wasm-node.mjs": "f323ed09d4c8a41063a30b810a553328bd92db2e846cbb625a170a7892131146",
+        "wasm/async.mjs": "f382a5e94e0d871d41123dfe87f53715a762e5bc271c4dcaef71766123075cfb",
+        "wasm/import.meta.url-polyfill.js": "5332931b99940a1dd41c0ecd9b3dc375fd0f0fa0551146a30b91a24b2b0ab02a",
+        "node/browserslistToTargets.js": "18b2c767c8623273e0c5ead5bb8e09f3f843d8401aaa6518dbdd20337849f37b",
+        "node/flags.js": "646027f1c0977cf151916b221edf51c2b4287ff5b5028c60243f6b014e9a388d",
+        "node/composeVisitors.js": "0d5aeaeaf42ccc6c64d10add07aa243102cdc8c6c25c3e2ebb1b01c46a1356f5",
+        "scripts/build-candidate-wasm.mjs": "3c59f42526f94cd0fa0c9977be377b462b2a1379957ea4136dd72db1f33f83e6",
+        "scripts/native-css-inputs.mjs": "44c37b339f0a1de76a93dd0e8c91749883c9e04e9deb2430ea3f60916d960ce4",
+        "vendor/napi-wasm-NOTICE": "09e89cb0d17df0766d3b99937e6f39dc96d795fe455757a023d0c85febb22978",
+        "vendor/napi-wasm-package.json": "979a10d090dc49549d31ee206b60863950712145a3bebf9fe21a0919e8ca77a1"
+      },
+      "esbuild": "0.28.2",
+      "napiWasm": "1.1.3",
+      "napiWasmInputSHA256": "0108dc67b01e6f4e8493720a51f58747f5318ff13294bb4636fce108515e0101",
+      "rawWasmSHA256": "d392deef78bf3cd0026c9e05fab68d3b185a561e89240e5e875f5c6a82f8d443",
+      "adapterSHA256": "9aacec17ea517e31eaf39cecb60eada7cfa637ec3f4629c04ff0af9e63148d90",
+      "wasmSHA256": "4c2a5251dac4f47ebdadce39579febee5e12e00a3c892e5719e2a46ffa535a27"
+    },
+    "base": "1d680fa14e9a089c92dc0929f869d6757ae91c30",
+    "revision": "1e94372a6da4a55eac4a6dc3ff9cdeec103e8ac1",
+    "target": "x86_64-unknown-linux-gnu + wasm32-unknown-unknown",
+    "version": "1.33.0+nativecss.fix.4",
+    "rustc": "rustc 1.92.0 (ded5c06cf 2025-12-08)",
+    "binarySHA256": "8a38620c1bbf54acfb12f40b3180ce4e8510a5fb952e9173a3b7fe0b676ecbd6",
+    "sourceSHA256": "e36a53d7dac040b249399c73d7079d4c9d2769d221746891294e06c46ed14f89",
+    "cargoLockSHA256": "aa5fe01e8cecd9c200eabdf6f3028bc717b1d1959c4e19b61e05ae7152eb55b2",
+    "adapterSHA256": "9aacec17ea517e31eaf39cecb60eada7cfa637ec3f4629c04ff0af9e63148d90",
+    "wasmSHA256": "4c2a5251dac4f47ebdadce39579febee5e12e00a3c892e5719e2a46ffa535a27",
+    "platformPolicy": "Embedded GNU native on Linux x64 glibc >=2.35; bundled patched WASM on other Node hosts, or when LIGHTNINGCSS_FORCE_WASM=1; no stock optional-package fallback."
+  }
+}

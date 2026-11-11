@@ -12,6 +12,7 @@ permissions:
 
 jobs:
   codspeed:
+    if: github.repository == 'parcel-bundler/lightningcss'
     name: ${{ matrix.package }} / ${{ matrix.bench }}
     runs-on: ubuntu-latest
     strategy:

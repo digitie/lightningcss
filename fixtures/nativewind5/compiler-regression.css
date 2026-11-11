@@ -1,0 +1,11 @@
+/* SPDX-License-Identifier: MPL-2.0
+ * SPDX-FileCopyrightText: 2026 Youn-sok Choi (digitie)
+ * 앱과 독립적인 변수·환경 값·큰 숫자·무한대 visitor 회귀 입력.
+ */
+@property --spacing { syntax: "<length>"; inherits: false; initial-value: 0px; }
+:root { --spacing: .25rem; --accent: #123456; }
+.rounded-full { border-radius: calc(infinity * 1px); }
+.large-radius { border-radius: 100000px; }
+.accent { color: var(--accent); padding: calc(var(--spacing) * 4); }
+.safe-area { padding-top: env(safe-area-inset-top); }
+.native-label { font-size: 1rem; @nativeMapping font-size:fontSize; }

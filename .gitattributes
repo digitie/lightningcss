@@ -1,0 +1,2 @@
+# Historical test packages are not corresponding build source.
+fixtures/nativewind5/vendor/*.tgz export-ignore
