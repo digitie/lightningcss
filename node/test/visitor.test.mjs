@@ -90,6 +90,24 @@ test('non-finite f32 values survive buffered AST visitors', () => {
   }
 });
 
+
+test('large integral f32 values survive buffered AST visitors', () => {
+  for (const css of ['.x { border-radius: 100000px; }', '.x { opacity: 100000; }']) {
+    const options = {filename: 'test.css', code: Buffer.from(css)};
+    assert.equal(
+      transform({...options, visitor: {Rule: rule => rule}}).code.toString(),
+      transform(options).code.toString(),
+    );
+  }
+});
+
+test('rounded-full survives consecutive visitor passes', () => {
+  const options = {filename: 'test.css', code: Buffer.from('.x { border-radius: calc(infinity * 1px); }'), visitor: {Rule: rule => rule}};
+  const first = transform(options);
+  const second = transform({...options, code: first.code});
+  assert.ok(second.code.toString().includes('border-radius'));
+});
+
 test('px to rem', () => {
   // Similar to https://github.com/cuth/postcss-pxtorem
   let res = transform({

@@ -24,7 +24,7 @@ for (const name of fs.readdirSync(path.join(root, 'node'))) {
 }
 for (const name of ['LICENSE', 'README.md']) fs.copyFileSync(path.join(root, name), path.join(stage, name));
 const packageJSON = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8'));
-packageJSON.version = '1.33.0+nativecss.fix.2';
+packageJSON.version = '1.33.0+nativecss.fix.3';
 delete packageJSON.os;
 delete packageJSON.cpu;
 delete packageJSON.libc;

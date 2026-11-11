@@ -5,6 +5,7 @@ const api = require(target);
 const expectFailure = process.argv.includes('--expect-failure');
 for (const css of [
   '.x { color: var(--color); }',
+  '.x { border-radius: 100000px; }',
   '.rounded { border-radius: calc(infinity * 1px); }',
   '.x { padding: env(safe-area-inset-top); }',
   '@property --x { syntax: "*"; inherits: false; initial-value: 0; } .x { translate: var(--x); }',

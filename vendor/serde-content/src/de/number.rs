@@ -147,10 +147,7 @@ macro_rules! coerce_int {
             Expected::I32 => {
                 $visitor.visit_i32($v.try_into().map_err(|_| $number.unexpected($expected))?)
             }
-            Expected::F32
-                if i32::try_from($v).is_ok()
-                    && range!(i16, u16 as i32).contains(&i32::try_from($v).unwrap()) =>
-            {
+            Expected::F32 if range!(f32 as f64).contains(&($v as f64)) => {
                 $visitor.visit_f32($v as f32)
             }
             Expected::U32 => {
@@ -159,12 +156,7 @@ macro_rules! coerce_int {
             Expected::I64 => {
                 $visitor.visit_i64($v.try_into().map_err(|_| $number.unexpected($expected))?)
             }
-            Expected::F64
-                if i64::try_from($v).is_ok()
-                    && range!(i32, u32 as i64).contains(&i64::try_from($v).unwrap()) =>
-            {
-                $visitor.visit_f64($v as f64)
-            }
+            Expected::F64 => $visitor.visit_f64($v as f64),
             Expected::U64 => {
                 $visitor.visit_u64($v.try_into().map_err(|_| $number.unexpected($expected))?)
             }

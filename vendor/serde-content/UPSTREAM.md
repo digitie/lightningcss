@@ -16,3 +16,8 @@ released upstream, replace the path patch with that registry release.
 
 The numeric fix also permits IEEE Infinity and NaN when coercing f64 to f32,
 while continuing to reject finite values outside the representable f32 range.
+
+Large integer to float coercion: 67fe4a9c5b4595433a731b70dbe31412721bea8c.
+When explicitly coercing numbers, integer-to-float casts follow the floating
+point range rather than the source integer width. Integer-target checks and
+finite overflow checks remain enabled.

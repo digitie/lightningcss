@@ -27,3 +27,6 @@ archive and commit/hash provenance. The candidate requires a clean committed tre
 
 The second regression is Tailwind rounded-full: border-radius:calc(infinity * 1px).
 Non-finite floats must survive f64-to-f32 numeric coercion. Finite overflow remains an error.
+
+Large integral values (for example border-radius:100000px) must also survive
+numeric coercion, including the second visitor pass after infinity is printed.

@@ -394,3 +394,40 @@ fn coerce_f64_nonfinite() {
         }
     }
 }
+
+#[test]
+fn coerce_large_integer_floats() {
+    use serde_content::Value;
+    for number in [
+        Number::I64(100000),
+        Number::I64(i64::MIN),
+        Number::I64(i64::MAX),
+        Number::U64(u64::MAX),
+        Number::I128(i128::MIN),
+        Number::I128(i128::MAX),
+    ] {
+        let value = match number {
+            Number::I64(value) => value as f64,
+            Number::U64(value) => value as f64,
+            Number::I128(value) => value as f64,
+            _ => unreachable!(),
+        };
+        let deserializer = Deserializer::new(Value::Number(number));
+        assert!(deserializer.clone().deserialize::<f32>().is_err());
+        assert_eq!(
+            deserializer
+                .clone()
+                .coerce_numbers()
+                .deserialize::<f32>()
+                .unwrap(),
+            value as f32
+        );
+        assert_eq!(
+            deserializer.coerce_numbers().deserialize::<f64>().unwrap(),
+            value
+        );
+    }
+    let too_large = Deserializer::new(Value::Number(Number::U128(u128::MAX))).coerce_numbers();
+    assert!(too_large.clone().deserialize::<f32>().is_err());
+    assert_eq!(too_large.deserialize::<f64>().unwrap(), u128::MAX as f64);
+}
