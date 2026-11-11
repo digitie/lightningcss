@@ -77,6 +77,19 @@ test('visitor null options preserve CSS module references and numeric coercion',
   assert.equal(actual.exports, expected.exports);
 });
 
+
+test('non-finite f32 values survive buffered AST visitors', () => {
+  const options = {filename: 'test.css', code: Buffer.from('.rounded { border-radius: calc(infinity * 1px); }')};
+  const expected = transform(options).code.toString();
+  for (const visitor of [
+    {Rule: rule => rule},
+    {Declaration: declaration => declaration},
+    {StyleSheetExit: sheet => sheet},
+  ]) {
+    assert.equal(transform({...options, visitor}).code.toString(), expected);
+  }
+});
+
 test('px to rem', () => {
   // Similar to https://github.com/cuth/postcss-pxtorem
   let res = transform({

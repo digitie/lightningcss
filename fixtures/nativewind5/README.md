@@ -16,8 +16,14 @@ Build from this committed source with: cargo build --locked --release -p lightni
 Use CARGO_TARGET_DIR outside the checkout when storage is limited.
 Run: cargo test --locked --lib --test test_serde --features serde
 Run the Node tests against the newly built native binary.
-WASM and non-Linux host binaries require separate builds and validation.
+The candidate also includes the same patched Rust source compiled to WASM.
+Non-Linux hosts and LIGHTNINGCSS_FORCE_WASM=1 use the bundled synchronous
+upstream Node WASM adapter. Actual macOS/Windows/EAS runs remain integration checks.
 
-node scripts/pack-native-candidate.mjs /path/to/liblightningcss_node.so /output
-creates one platform-restricted review tarball with its embedded binary, source
+node scripts/build-candidate-wasm.mjs /path/to/raw.wasm /built-wasm
+node scripts/pack-native-candidate.mjs /path/to/liblightningcss_node.so /output /built-wasm
+creates one portable review tarball with its embedded native and WASM binaries, source
 archive and commit/hash provenance. The candidate requires a clean committed tree.
+
+The second regression is Tailwind rounded-full: border-radius:calc(infinity * 1px).
+Non-finite floats must survive f64-to-f32 numeric coercion. Finite overflow remains an error.

@@ -757,7 +757,9 @@ impl<'de, V: serde::Deserialize<'de>, const IS_VEC: bool> serde::Deserialize<'de
   {
     use serde::Deserializer;
     let content = serde_content::Value::deserialize(deserializer)?;
-    let de = serde_content::Deserializer::new(content.clone()).coerce_numbers().coerce_unit_to_none();
+    let de = serde_content::Deserializer::new(content.clone())
+      .coerce_numbers()
+      .coerce_unit_to_none();
 
     // Try to deserialize as a sequence first.
     let mut was_seq = false;
@@ -820,7 +822,9 @@ impl<'i, 'de: 'i> serde::Deserialize<'de> for TokensOrRaw<'i> {
     }
 
     let content = serde_content::Value::deserialize(deserializer)?;
-    let de = serde_content::Deserializer::new(content.clone()).coerce_numbers().coerce_unit_to_none();
+    let de = serde_content::Deserializer::new(content.clone())
+      .coerce_numbers()
+      .coerce_unit_to_none();
 
     if let Ok(res) = Raw::deserialize(de) {
       let res = TokenList::parse_string_with_options(res.raw.as_ref(), ParserOptions::default())

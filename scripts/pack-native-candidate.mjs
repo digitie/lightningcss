@@ -1,5 +1,5 @@
-// Produce a single, source-traceable Linux x64 GNU review candidate.
-// Usage: node scripts/pack-native-candidate.mjs /path/to/liblightningcss_node.so /output/directory
+// Produce one source-traceable candidate with GNU native and portable WASM backends.
+// Usage: node scripts/pack-native-candidate.mjs native.so output-directory built-wasm-directory
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -8,8 +8,8 @@ import {execFileSync} from 'node:child_process';
 import {fileURLToPath} from 'node:url';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const [binary, output] = process.argv.slice(2);
-if (!binary || !output) throw new Error('Expected native library path and output directory');
+const [binary, output, wasmDirectory] = process.argv.slice(2);
+if (!binary || !output || !wasmDirectory) throw new Error('Expected native library, output and built WASM directory');
 if (process.platform !== 'linux' || process.arch !== 'x64' || !process.report.getReport().header.glibcVersionRuntime) {
   throw new Error('This candidate requires a Linux x64 GNU build host');
 }
@@ -24,25 +24,37 @@ for (const name of fs.readdirSync(path.join(root, 'node'))) {
 }
 for (const name of ['LICENSE', 'README.md']) fs.copyFileSync(path.join(root, name), path.join(stage, name));
 const packageJSON = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8'));
-packageJSON.version = '1.33.0+nativecss.fix.1';
-packageJSON.os = ['linux'];
-packageJSON.cpu = ['x64'];
-packageJSON.libc = ['glibc'];
+packageJSON.version = '1.33.0+nativecss.fix.2';
+delete packageJSON.os;
+delete packageJSON.cpu;
+delete packageJSON.libc;
+packageJSON.engines = {node: '>=18'};
 delete packageJSON.devDependencies;
 delete packageJSON.resolutions;
 delete packageJSON.scripts;
 delete packageJSON.napi;
 delete packageJSON.optionalDependencies;
-packageJSON.files = ['node/*.js', 'node/*.mjs', 'node/*.d.ts', 'node/*.flow', '*.node', 'NATIVE-FIX-PROVENANCE.json', 'native-source.tar.gz'];
-packageJSON.nativeFix = {base: '1d680fa14e9a089c92dc0929f869d6757ae91c30', revision, target: 'x86_64-unknown-linux-gnu'};
+packageJSON.files = ['node/*.js', 'node/*.mjs', 'node/*.d.ts', 'node/*.flow', '*.node', 'wasm/*', 'NATIVE-FIX-PROVENANCE.json', 'native-source.tar.gz'];
+packageJSON.nativeFix = {base: '1d680fa14e9a089c92dc0929f869d6757ae91c30', revision, target: 'x86_64-unknown-linux-gnu + wasm32-unknown-unknown'};
 fs.writeFileSync(path.join(stage, 'package.json'), JSON.stringify(packageJSON, null, 2) + '\n');
 const entryPath = path.join(stage, 'node/index.js');
 const entry = fs.readFileSync(entryPath, 'utf8');
 const end = entry.indexOf('module.exports.transform =');
 if (end === -1) throw new Error('Unrecognized native loader source');
-// A platform-restricted review package owns exactly one binary and must not
-// load a stock optional platform package from a consuming app's ancestors.
-fs.writeFileSync(entryPath, 'const native = require("../lightningcss.linux-x64-gnu.node");\n\n' + entry.slice(end));
+// The candidate owns both backends. It never loads a stock optional package.
+const loader = [
+  'const glibc = process.report?.getReport().header.glibcVersionRuntime;',
+  'const [major, minor] = (glibc || "0.0").split(".").map(Number);',
+  'const useNative = process.env.LIGHTNINGCSS_FORCE_WASM !== "1" && process.platform === "linux" && process.arch === "x64" && (major > 2 || (major === 2 && minor >= 35));',
+  'const native = useNative ? require("../lightningcss.linux-x64-gnu.node") : require("../wasm/wasm-node.cjs");',
+  'module.exports.nativeFixBackend = useNative ? "native" : "wasm";',
+  '',
+].join('\n');
+fs.writeFileSync(entryPath, loader + entry.slice(end));
+fs.mkdirSync(path.join(stage, 'wasm'));
+for (const name of ['wasm-node.cjs', 'lightningcss_node.wasm', 'NAPI-WASM-NOTICE']) {
+  fs.copyFileSync(path.join(path.resolve(wasmDirectory), name), path.join(stage, 'wasm', name));
+}
 fs.copyFileSync(path.resolve(binary), path.join(stage, 'lightningcss.linux-x64-gnu.node'));
 execFileSync('strip', ['--strip-unneeded', path.join(stage, 'lightningcss.linux-x64-gnu.node')]);
 execFileSync('git', ['archive', '--format=tar.gz', '--output=' + path.join(stage, 'native-source.tar.gz'), revision], {cwd: root});
@@ -53,7 +65,8 @@ const provenance = {
   binarySHA256: crypto.createHash('sha256').update(fs.readFileSync(path.join(stage, 'lightningcss.linux-x64-gnu.node'))).digest('hex'),
   sourceSHA256: crypto.createHash('sha256').update(fs.readFileSync(path.join(stage, 'native-source.tar.gz'))).digest('hex'),
   cargoLockSHA256: crypto.createHash('sha256').update(fs.readFileSync(path.join(root, 'Cargo.lock'))).digest('hex'),
-  platformPolicy: 'Linux x64 glibc only; embedded binary; no optional-package fallback; other hosts require a separately rebuilt candidate.',
+  wasmSHA256: crypto.createHash('sha256').update(fs.readFileSync(path.join(stage, 'wasm/lightningcss_node.wasm'))).digest('hex'),
+  platformPolicy: 'Embedded GNU native on Linux x64 glibc >=2.35; bundled patched WASM on other Node hosts, or when LIGHTNINGCSS_FORCE_WASM=1; no stock optional-package fallback.',
 };
 fs.writeFileSync(path.join(stage, 'NATIVE-FIX-PROVENANCE.json'), JSON.stringify(provenance, null, 2) + '\n');
 fs.mkdirSync(path.resolve(output), {recursive: true});

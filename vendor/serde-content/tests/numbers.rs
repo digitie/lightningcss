@@ -379,3 +379,18 @@ fn coerce_f64() {
         }
     }
 }
+
+#[test]
+fn coerce_f64_nonfinite() {
+    use serde_content::Value;
+    for value in [f64::INFINITY, f64::NEG_INFINITY, f64::NAN] {
+        let deserializer = Deserializer::new(Value::Number(Number::F64(value)));
+        assert!(deserializer.clone().deserialize::<f32>().is_err());
+        let actual: f32 = deserializer.coerce_numbers().deserialize().unwrap();
+        if value.is_nan() {
+            assert!(actual.is_nan());
+        } else {
+            assert_eq!(actual, value as f32);
+        }
+    }
+}

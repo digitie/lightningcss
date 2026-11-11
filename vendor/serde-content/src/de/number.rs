@@ -248,7 +248,9 @@ where
                 (Number::U64(v), _) => {
                     coerce_int!(number, v, expected, visitor)
                 }
-                (Number::F64(v), NumberType::F32) if range!(f32 as f64).contains(&v) => {
+                (Number::F64(v), NumberType::F32)
+                    if !v.is_finite() || range!(f32 as f64).contains(&v) =>
+                {
                     visitor.visit_f32(v as f32)
                 }
                 (Number::I128(v), _) => {

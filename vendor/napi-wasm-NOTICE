@@ -1,0 +1,8 @@
+napi-wasm 1.1.3
+Author: Devon Govett <devongovett@gmail.com>
+License declared by upstream package.json: MIT
+Source: https://github.com/devongovett/napi-wasm/tree/bbde4dc54b23d56889e4ca8a23704424df7ae05e
+npm integrity: sha512-h/4nMGsHjZDCYmQVNODIrYACVJ+I9KItbG+0si6W/jSjdA9JbWDoU4LLeMXVcEQGHjttI2tuXqDrbGF7qkUHHg==
+
+The upstream npm package and source tree do not contain a standalone LICENSE file.
+Its original JavaScript implementation is bundled into wasm-node.cjs.
