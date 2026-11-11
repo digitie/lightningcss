@@ -757,7 +757,7 @@ impl<'de, V: serde::Deserialize<'de>, const IS_VEC: bool> serde::Deserialize<'de
   {
     use serde::Deserializer;
     let content = serde_content::Value::deserialize(deserializer)?;
-    let de = serde_content::Deserializer::new(content.clone()).coerce_numbers();
+    let de = serde_content::Deserializer::new(content.clone()).coerce_numbers().coerce_unit_to_none();
 
     // Try to deserialize as a sequence first.
     let mut was_seq = false;
@@ -774,7 +774,7 @@ impl<'de, V: serde::Deserialize<'de>, const IS_VEC: bool> serde::Deserialize<'de
     }
 
     // If it wasn't a sequence, try a value.
-    let de = serde_content::Deserializer::new(content).coerce_numbers();
+    let de = serde_content::Deserializer::new(content).coerce_numbers().coerce_unit_to_none();
     return V::deserialize(de)
       .map_err(|e| serde::de::Error::custom(e.to_string()))
       .map(ValueOrVec::Value);
@@ -820,7 +820,7 @@ impl<'i, 'de: 'i> serde::Deserialize<'de> for TokensOrRaw<'i> {
     }
 
     let content = serde_content::Value::deserialize(deserializer)?;
-    let de = serde_content::Deserializer::new(content.clone()).coerce_numbers();
+    let de = serde_content::Deserializer::new(content.clone()).coerce_numbers().coerce_unit_to_none();
 
     if let Ok(res) = Raw::deserialize(de) {
       let res = TokenList::parse_string_with_options(res.raw.as_ref(), ParserOptions::default())
@@ -828,7 +828,7 @@ impl<'i, 'de: 'i> serde::Deserialize<'de> for TokensOrRaw<'i> {
       return Ok(TokensOrRaw(ValueOrVec::Vec(res.into_owned().0)));
     }
 
-    let de = serde_content::Deserializer::new(content).coerce_numbers();
+    let de = serde_content::Deserializer::new(content).coerce_numbers().coerce_unit_to_none();
     Ok(TokensOrRaw(
       ValueOrVec::deserialize(de).map_err(|e| serde::de::Error::custom(e.to_string()))?,
     ))

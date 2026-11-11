@@ -127,3 +127,7 @@ harness = false
 lto = true
 codegen-units = 1
 panic = 'abort'
+
+# Keep the complete source of the null-option fix available until upstream releases it.
+[patch.crates-io]
+serde-content = { path = "vendor/serde-content" }

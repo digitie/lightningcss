@@ -1065,7 +1065,7 @@ macro_rules! define_properties {
           ContentOrRaw::Content(content) => content
         };
 
-        let deserializer = serde_content::Deserializer::new(content).coerce_numbers();
+        let deserializer = serde_content::Deserializer::new(content).coerce_numbers().coerce_unit_to_none();
         match partial.property_id {
           $(
             $(#[$meta])*
