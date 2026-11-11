@@ -44,7 +44,7 @@ test('resolver', async () => {
     'hello/world.css': `
  .baz { color: blue; }
          `.trim(),
-  }));
+  }).map(([file, code]) => [path.normalize(file), code]));
 
   const { code: buffer } = await bundleAsync({
     filename: 'foo.css',
@@ -95,7 +95,7 @@ test('only custom read', async () => {
     'bar.css': `
  .baz { color: blue; }
          `.trim(),
-  }));
+  }).map(([file, code]) => [path.normalize(file), code]));
 
   const { code: buffer } = await bundleAsync({
     filename: 'foo.css',
