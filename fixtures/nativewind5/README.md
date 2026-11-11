@@ -30,3 +30,9 @@ Non-finite floats must survive f64-to-f32 numeric coercion. Finite overflow rema
 
 Large integral values (for example border-radius:100000px) must also survive
 numeric coercion, including the second visitor pass after infinity is printed.
+
+## 고정 배포물의 호스트 검증
+
+vendor의 수정 후보와 manifest는 동일한 파일 해시를 고정한다. npm ci 후 npm test는 전달 pack을 실제로 추출하고 Node 전체90개·최소 재현·Expo resolver·앱과 독립적인 합성 CSS의 compiler IR을 검증한다. Linux에서는 native와 강제 WASM을 각각 실행하며 macOS와 Windows에서는 해당 호스트의 자동 WASM 선택을 실제 실행한다. GitHub CI의 호스트별 실행 결과를 확인하기 전에는 그 호스트가 통과했다고 표시하지 않는다.
+
+기존 CodSpeed 성능 서비스는 원 저장소에서만 실행한다. 이 fork의 변경은 외부 성능 서비스 연결을 요구하지 않으며 기능 검증은 별도 고정 배포물 CI가 수행한다. 고정 배포물의 Rust 소스 revision은 684c528b2d16c581c99cf829f9a4988985488d5f이며, 이후 CI/fixture 추가 커밋은 해당 실행 소스의 변경을 포함하지 않는다.
